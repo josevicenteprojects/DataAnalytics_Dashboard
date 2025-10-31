@@ -135,6 +135,22 @@ async def get_filter_options():
     try:
         # Obtener fechas disponibles
         sales_df = db.get_sales_data()
+        
+        # Verificar que hay datos
+        if len(sales_df) == 0:
+            return {
+                "success": True,
+                "data": {
+                    "dates": {
+                        "min": None,
+                        "max": None,
+                        "available": []
+                    },
+                    "products": [],
+                    "regions": []
+                }
+            }
+        
         dates = sorted(sales_df['date'].unique().tolist())
         
         # Obtener productos únicos
@@ -147,8 +163,8 @@ async def get_filter_options():
             "success": True,
             "data": {
                 "dates": {
-                    "min": min(dates),
-                    "max": max(dates),
+                    "min": min(dates) if dates else None,
+                    "max": max(dates) if dates else None,
                     "available": dates
                 },
                 "products": products,

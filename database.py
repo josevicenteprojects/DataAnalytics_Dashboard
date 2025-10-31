@@ -185,7 +185,10 @@ class DatabaseManager:
             (sales_df['date'] < three_months_ago)
         ]['sales_amount'].sum()
         
-        growth_rate = ((recent_sales - previous_sales) / previous_sales * 100) if previous_sales > 0 else 0
+        growth_rate = ((recent_sales - previous_sales) / previous_sales * 100) if previous_sales > 0 else 0.0
+        # Asegurar que growth_rate no sea inf o nan
+        if not np.isfinite(growth_rate):
+            growth_rate = 0.0
         
         # Ventas por mes (últimos 12 meses)
         monthly_sales = sales_df.groupby(sales_df['date'].dt.to_period('M'))['sales_amount'].sum()
@@ -205,48 +208,64 @@ class DatabaseManager:
         
         conn.close()
         
+        # Asegurar que todos los valores son finitos
+        def safe_round(value, decimals=2):
+            """Redondear valor, convirtiendo inf/nan a 0"""
+            if not np.isfinite(value):
+                return 0.0
+            return round(float(value), decimals)
+        
         return {
             'metrics': {
-                'total_sales': round(total_sales, 2),
-                'total_profit': round(total_profit, 2),
-                'total_customers': int(total_customers),
-                'avg_order_value': round(avg_order_value, 2),
-                'growth_rate': round(growth_rate, 1)
+                'total_sales': safe_round(total_sales, 2),
+                'total_profit': safe_round(total_profit, 2),
+                'total_customers': int(total_customers) if np.isfinite(total_customers) else 0,
+                'avg_order_value': safe_round(avg_order_value, 2),
+                'growth_rate': safe_round(growth_rate, 1)
             },
             'monthly_data': {
                 'months': [str(period) for period in monthly_sales.index],
-                'sales': [round(x, 2) for x in monthly_sales.values],
-                'profit': [round(x, 2) for x in monthly_profit.values]
+                'sales': [safe_round(x, 2) for x in monthly_sales.values],
+                'profit': [safe_round(x, 2) for x in monthly_profit.values]
             },
             'product_data': {
                 'products': product_sales.index.tolist(),
-                'sales': [round(x, 2) for x in product_sales['sales_amount'].values],
-                'quantity': [int(x) for x in product_sales['quantity'].values]
+                'sales': [safe_round(x, 2) for x in product_sales['sales_amount'].values],
+                'quantity': [int(x) if np.isfinite(x) else 0 for x in product_sales['quantity'].values]
             },
             'region_data': {
                 'regions': region_sales.index.tolist(),
-                'sales': [round(x, 2) for x in region_sales['sales_amount'].values],
-                'customers': [int(x) for x in region_sales['quantity'].values]
+                'sales': [safe_round(x, 2) for x in region_sales['sales_amount'].values],
+                'customers': [int(x) if np.isfinite(x) else 0 for x in region_sales['quantity'].values]
             }
         }
     
     def export_to_csv(self, table_name: str, filename: str = None):
         """Exportar datos a CSV"""
+        import os
         conn = sqlite3.connect(self.db_path)
         df = pd.read_sql_query(f"SELECT * FROM {table_name}", conn)
         conn.close()
         
         if filename is None:
-            filename = f"{table_name}_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+            filename = f"exports/{table_name}_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+            # Crear directorio si no existe
+            os.makedirs(os.path.dirname(filename), exist_ok=True)
         
         df.to_csv(filename, index=False)
         return filename
     
     def export_to_excel(self, filename: str = None):
         """Exportar todos los datos a Excel"""
+        import os
+        if filename is None:
+            filename = f"exports/analytics_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+            # Crear directorio si no existe
+            os.makedirs(os.path.dirname(filename), exist_ok=True)
+        
         conn = sqlite3.connect(self.db_path)
         
-        with pd.ExcelWriter(filename or f"analytics_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx") as writer:
+        with pd.ExcelWriter(filename, engine='openpyxl') as writer:
             # Hoja de ventas
             sales_df = pd.read_sql_query("SELECT * FROM sales", conn)
             sales_df.to_excel(writer, sheet_name='Ventas', index=False)
