@@ -212,16 +212,6 @@ Este sistema puede utilizarse en diversos contextos empresariales para análisis
 - **CI/CD**: Automatización de tests y despliegue mediante GitHub Actions
 - **Testing**: Suite de tests unitarios para garantizar calidad del código
 
-## 🚀 **Roadmap Futuro**
-
-El proyecto está en constante evolución. Próximas mejoras planificadas incluyen:
-
-- Implementación de autenticación y autorización mediante JWT
-- Integración de WebSockets para actualizaciones en tiempo real
-- Algoritmos de Machine Learning para predicciones más avanzadas
-- Migración a PostgreSQL para escalabilidad mejorada
-- Implementación de cache con Redis para optimización de rendimiento
-- Orquestación avanzada con Kubernetes para entornos de producción
 
 ## 📄 **Licencia**
 
@@ -253,11 +243,6 @@ Si tienes preguntas o necesitas ayuda:
 - **Discusiones:** [GitHub Discussions](https://github.com/josevicenteprojects/DataAnalytics_Dashboard/discussions)
 - **Email:** jvab5899@gmail.com
 
----
-
-**¡Gracias por usar Data Analytics Dashboard!** 🚀
-
-*Desarrollado con ❤️ por Jose Vicente*
 
 
 
