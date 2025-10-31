@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+venv/
+.env
+.pytest_cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build/Dist
+build/
+dist/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Exports (generated files)
+exports/*.csv
+exports/*.xlsx
+!exports/.gitkeep
+
+# Accidental nested projects folder
+proyectos/
+
+
+
+
+

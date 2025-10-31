@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  analytics-dashboard:
+    build: .
+    container_name: data-analytics-dashboard-prod
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./data:/app/data
+      - ./exports:/app/exports
+    environment:
+      - PYTHONUNBUFFERED=1
+      - ENVIRONMENT=production
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+
+
+
+

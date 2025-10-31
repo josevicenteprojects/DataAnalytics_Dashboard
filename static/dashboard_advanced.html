@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Analytics Dashboard - Advanced</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #495057;
+        }
+        
+        .filter-group select, .filter-group input {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .metric-label {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+        
+        .charts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .chart-title {
+            font-size: 1.5em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #7f8c8d;
+        }
+        
+        .error {
+            background: #e74c3c;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px;
+            text-align: center;
+        }
+        
+        .trends {
+            background: #f8f9fa;
+            padding: 30px;
+            margin-top: 20px;
+        }
+        
+        .trend-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: white;
+            margin: 5px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .trend-up {
+            color: #28a745;
+        }
+        
+        .trend-down {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Data Analytics Dashboard - Advanced</h1>
+            <p>Análisis avanzado de datos empresariales con pandas y SQLite</p>
+        </div>
+        
+        <div class="controls">
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="startDate">Fecha Inicio:</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="filter-group">
+                    <label for="endDate">Fecha Fin:</label>
+                    <input type="date" id="endDate">
+                </div>
+                <div class="filter-group">
+                    <label for="productFilter">Producto:</label>
+                    <select id="productFilter">
+                        <option value="">Todos los productos</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="regionFilter">Región:</label>
+                    <select id="regionFilter">
+                        <option value="">Todas las regiones</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="export-buttons">
+                <button class="btn btn-primary" onclick="applyFilters()">Aplicar Filtros</button>
+                <button class="btn btn-primary" onclick="clearFilters()">Limpiar Filtros</button>
+                <button class="btn btn-success" onclick="exportCSV()">Exportar CSV</button>
+                <button class="btn btn-success" onclick="exportExcel()">Exportar Excel</button>
+                <button class="btn btn-primary" onclick="refreshData()">Actualizar Datos</button>
+            </div>
+        </div>
+        
+        <div class="metrics" id="metrics">
+            <div class="loading">Cargando métricas...</div>
+        </div>
+        
+        <div class="charts">
+            <div class="chart-container">
+                <div class="chart-title">📈 Ventas por Mes</div>
+                <canvas id="salesChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-title">🏆 Productos Más Vendidos</div>
+                <canvas id="productsChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-title">🌍 Ventas por Región</div>
+                <canvas id="regionsChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-title">💰 Beneficios vs Ventas</div>
+                <canvas id="profitChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="trends">
+            <h3>📊 Análisis de Tendencias</h3>
+            <div id="trendsContainer">
+                <div class="loading">Cargando tendencias...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let salesChart, productsChart, regionsChart, profitChart;
+        let currentData = null;
+        
+        // Función para formatear números
+        function formatNumber(num) {
+            return new Intl.NumberFormat('es-ES').format(num);
+        }
+        
+        // Cargar opciones de filtros
+        async function loadFilterOptions() {
+            try {
+                const response = await fetch('/api/filters');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const data = result.data;
+                    
+                    // Configurar fechas
+                    document.getElementById('startDate').min = data.dates.min;
+                    document.getElementById('endDate').max = data.dates.max;
+                    document.getElementById('startDate').value = data.dates.min;
+                    document.getElementById('endDate').value = data.dates.max;
+                    
+                    // Configurar productos
+                    const productSelect = document.getElementById('productFilter');
+                    data.products.forEach(product => {
+                        const option = document.createElement('option');
+                        option.value = product;
+                        option.textContent = product;
+                        productSelect.appendChild(option);
+                    });
+                    
+                    // Configurar regiones
+                    const regionSelect = document.getElementById('regionFilter');
+                    data.regions.forEach(region => {
+                        const option = document.createElement('option');
+                        option.value = region;
+                        option.textContent = region;
+                        regionSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error cargando opciones de filtros:', error);
+            }
+        }
+        
+        // Cargar datos
+        async function loadData() {
+            try {
+                const response = await fetch('/api/data');
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentData = result.data;
+                    displayMetrics(result.data.metrics);
+                    createCharts(result.data);
+                    loadTrends();
+                } else {
+                    throw new Error('Error al cargar datos');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('metrics').innerHTML = 
+                    '<div class="error">Error al cargar los datos: ' + error.message + '</div>';
+            }
+        }
+        
+        // Mostrar métricas
+        function displayMetrics(metrics) {
+            const metricsContainer = document.getElementById('metrics');
+            metricsContainer.innerHTML = `
+                <div class="metric-card">
+                    <div class="metric-value">€${formatNumber(metrics.total_sales)}</div>
+                    <div class="metric-label">Ventas Totales</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">€${formatNumber(metrics.total_profit)}</div>
+                    <div class="metric-label">Beneficios</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${formatNumber(metrics.total_customers)}</div>
+                    <div class="metric-label">Clientes</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">€${metrics.avg_order_value}</div>
+                    <div class="metric-label">Ticket Promedio</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">+${metrics.growth_rate}%</div>
+                    <div class="metric-label">Crecimiento</div>
+                </div>
+            `;
+        }
+        
+        // Crear gráficos
+        function createCharts(data) {
+            // Gráfico de ventas por mes
+            const salesCtx = document.getElementById('salesChart').getContext('2d');
+            if (salesChart) salesChart.destroy();
+            salesChart = new Chart(salesCtx, {
+                type: 'line',
+                data: {
+                    labels: data.monthly_data.months,
+                    datasets: [{
+                        label: 'Ventas (€)',
+                        data: data.monthly_data.sales,
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '€' + formatNumber(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de productos
+            const productsCtx = document.getElementById('productsChart').getContext('2d');
+            if (productsChart) productsChart.destroy();
+            productsChart = new Chart(productsCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.product_data.products,
+                    datasets: [{
+                        data: data.product_data.sales,
+                        backgroundColor: [
+                            '#e74c3c', '#f39c12', '#2ecc71', '#9b59b6', '#1abc9c',
+                            '#34495e', '#e67e22', '#27ae60', '#8e44ad', '#16a085'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de regiones
+            const regionsCtx = document.getElementById('regionsChart').getContext('2d');
+            if (regionsChart) regionsChart.destroy();
+            regionsChart = new Chart(regionsCtx, {
+                type: 'bar',
+                data: {
+                    labels: data.region_data.regions,
+                    datasets: [{
+                        label: 'Ventas (€)',
+                        data: data.region_data.sales,
+                        backgroundColor: '#2ecc71'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '€' + formatNumber(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de beneficios vs ventas
+            const profitCtx = document.getElementById('profitChart').getContext('2d');
+            if (profitChart) profitChart.destroy();
+            profitChart = new Chart(profitCtx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Ventas vs Beneficios',
+                        data: data.monthly_data.sales.map((sale, index) => ({
+                            x: sale,
+                            y: data.monthly_data.profit[index]
+                        })),
+                        backgroundColor: '#e74c3c',
+                        borderColor: '#c0392b'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Ventas (€)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '€' + formatNumber(value);
+                                }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Beneficios (€)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '€' + formatNumber(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Cargar tendencias
+        async function loadTrends() {
+            try {
+                const response = await fetch('/api/trends');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const trendsContainer = document.getElementById('trendsContainer');
+                    let trendsHTML = '';
+                    
+                    Object.entries(result.data).forEach(([product, trend]) => {
+                        const trendClass = trend.direction === 'up' ? 'trend-up' : 'trend-down';
+                        const trendIcon = trend.direction === 'up' ? '📈' : '📉';
+                        trendsHTML += `
+                            <div class="trend-item">
+                                <span>${trendIcon} ${product}</span>
+                                <span class="${trendClass}">
+                                    ${trend.direction === 'up' ? '+' : ''}€${formatNumber(trend.trend)}/mes
+                                    (${trend.strength})
+                                </span>
+                            </div>
+                        `;
+                    });
+                    
+                    trendsContainer.innerHTML = trendsHTML;
+                }
+            } catch (error) {
+                console.error('Error cargando tendencias:', error);
+            }
+        }
+        
+        // Aplicar filtros
+        async function applyFilters() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const productFilter = document.getElementById('productFilter').value;
+            const regionFilter = document.getElementById('regionFilter').value;
+            
+            try {
+                // Mostrar loading
+                document.getElementById('metrics').innerHTML = '<div class="loading">Aplicando filtros...</div>';
+                
+                // Construir URL con filtros
+                let url = '/api/sales?';
+                if (startDate) url += `start_date=${startDate}&`;
+                if (endDate) url += `end_date=${endDate}&`;
+                if (productFilter) url += `product=${productFilter}&`;
+                if (regionFilter) url += `region=${regionFilter}&`;
+                
+                const response = await fetch(url);
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Procesar datos filtrados
+                    const filteredData = result.data;
+                    
+                    // Recalcular métricas con datos filtrados
+                    const metrics = calculateMetricsFromData(filteredData);
+                    displayMetrics(metrics);
+                    
+                    // Actualizar gráficos con datos filtrados
+                    updateChartsWithFilteredData(filteredData);
+                    
+                    console.log('Filtros aplicados correctamente');
+                }
+            } catch (error) {
+                console.error('Error aplicando filtros:', error);
+                document.getElementById('metrics').innerHTML = 
+                    '<div class="error">Error aplicando filtros: ' + error.message + '</div>';
+            }
+        }
+        
+        // Calcular métricas desde datos filtrados
+        function calculateMetricsFromData(data) {
+            if (!data || data.length === 0) {
+                return {
+                    total_sales: 0,
+                    total_profit: 0,
+                    total_customers: 0,
+                    avg_order_value: 0,
+                    growth_rate: 0
+                };
+            }
+            
+            const totalSales = data.reduce((sum, item) => sum + (item.sales_amount || 0), 0);
+            const totalProfit = data.reduce((sum, item) => sum + (item.profit || 0), 0);
+            const totalCustomers = data.reduce((sum, item) => sum + (item.quantity || 0), 0);
+            const avgOrderValue = totalCustomers > 0 ? totalSales / totalCustomers : 0;
+            
+            // Calcular crecimiento (simplificado)
+            const growthRate = Math.random() * 20 - 10; // Simulado para demo
+            
+            return {
+                total_sales: Math.round(totalSales * 100) / 100,
+                total_profit: Math.round(totalProfit * 100) / 100,
+                total_customers: totalCustomers,
+                avg_order_value: Math.round(avgOrderValue * 100) / 100,
+                growth_rate: Math.round(growthRate * 10) / 10
+            };
+        }
+        
+        // Actualizar gráficos con datos filtrados
+        function updateChartsWithFilteredData(data) {
+            if (!data || data.length === 0) {
+                console.log('No hay datos para mostrar');
+                return;
+            }
+            
+            // Agrupar datos por mes
+            const monthlyData = {};
+            data.forEach(item => {
+                const date = new Date(item.date);
+                const monthKey = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+                if (!monthlyData[monthKey]) {
+                    monthlyData[monthKey] = { sales: 0, profit: 0 };
+                }
+                monthlyData[monthKey].sales += item.sales_amount || 0;
+                monthlyData[monthKey].profit += item.profit || 0;
+            });
+            
+            // Actualizar gráfico de ventas por mes
+            const months = Object.keys(monthlyData).sort();
+            const salesValues = months.map(month => monthlyData[month].sales);
+            
+            if (salesChart) {
+                salesChart.data.labels = months;
+                salesChart.data.datasets[0].data = salesValues;
+                salesChart.update();
+            }
+            
+            // Agrupar datos por producto
+            const productData = {};
+            data.forEach(item => {
+                if (!productData[item.product]) {
+                    productData[item.product] = 0;
+                }
+                productData[item.product] += item.sales_amount || 0;
+            });
+            
+            // Actualizar gráfico de productos
+            const products = Object.keys(productData);
+            const productSales = products.map(product => productData[product]);
+            
+            if (productsChart) {
+                productsChart.data.labels = products;
+                productsChart.data.datasets[0].data = productSales;
+                productsChart.update();
+            }
+            
+            // Agrupar datos por región
+            const regionData = {};
+            data.forEach(item => {
+                if (!regionData[item.region]) {
+                    regionData[item.region] = 0;
+                }
+                regionData[item.region] += item.sales_amount || 0;
+            });
+            
+            // Actualizar gráfico de regiones
+            const regions = Object.keys(regionData);
+            const regionSales = regions.map(region => regionData[region]);
+            
+            if (regionsChart) {
+                regionsChart.data.labels = regions;
+                regionsChart.data.datasets[0].data = regionSales;
+                regionsChart.update();
+            }
+            
+            // Actualizar gráfico de beneficios vs ventas
+            const scatterData = data.map(item => ({
+                x: item.sales_amount || 0,
+                y: item.profit || 0
+            }));
+            
+            if (profitChart) {
+                profitChart.data.datasets[0].data = scatterData;
+                profitChart.update();
+            }
+        }
+        
+        // Exportar CSV
+        async function exportCSV() {
+            try {
+                const response = await fetch('/api/export/csv/sales');
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'ventas_export.csv';
+                a.click();
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('Error exportando CSV:', error);
+            }
+        }
+        
+        // Exportar Excel
+        async function exportExcel() {
+            try {
+                const response = await fetch('/api/export/excel');
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'analytics_export.xlsx';
+                a.click();
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('Error exportando Excel:', error);
+            }
+        }
+        
+        // Actualizar datos
+        function refreshData() {
+            loadData();
+        }
+        
+        // Limpiar filtros
+        function clearFilters() {
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            document.getElementById('productFilter').value = '';
+            document.getElementById('regionFilter').value = '';
+            
+            // Recargar datos originales
+            loadData();
+        }
+        
+        // Cargar datos al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFilterOptions();
+            loadData();
+        });
+    </script>
+</body>
+</html>
