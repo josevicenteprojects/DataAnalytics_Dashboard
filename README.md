@@ -172,48 +172,56 @@ DataAnalytics_Dashboard/
     └── dashboard_advanced.html  # Frontend avanzado
 ```
 
-## 💼 **Valor para CV**
-
-### **✅ Competencias Demostradas**
-- **Python Avanzado** - FastAPI, pandas, numpy
-- **Data Science** - Análisis, visualización, tendencias
-- **Base de Datos** - SQLite, consultas, filtros
-- **APIs REST** - 10+ endpoints documentados
-- **Frontend** - HTML5, CSS3, JavaScript, Chart.js
-- **DevOps** - Docker, testing, CI/CD
-- **Exportación** - CSV, Excel, formatos múltiples
-
-### **✅ Tecnologías Demandadas**
-- **Python** - 35% ofertas laborales
-- **FastAPI** - Framework moderno
-- **Pandas** - Data Science
-- **SQLite** - Base de datos
-- **Docker** - Containerización
-- **Testing** - Calidad de código
-
 ## 🎯 **Casos de Uso**
 
-### **Para Entrevistas Técnicas**
-- **Dashboard interactivo** - Mostrar filtros y gráficos
-- **APIs REST** - Swagger UI automática
-- **Exportación** - CSV y Excel
-- **Tests** - Ejecutar tests unitarios
-- **Docker** - Containerización
+Este sistema puede utilizarse en diversos contextos empresariales para análisis de datos y toma de decisiones:
 
-### **Para Demostraciones**
-- **Filtros dinámicos** - Cambiar fechas, productos, regiones
-- **Gráficos interactivos** - Hover, zoom, selección
-- **Exportación** - Descargar datos filtrados
-- **Responsive** - Funciona en móvil y desktop
+### **Análisis de Ventas y Performance**
+- Visualización de métricas de ventas en tiempo real
+- Identificación de tendencias y patrones de comportamiento
+- Análisis comparativo por productos y regiones
+- Generación de reportes ejecutivos para stakeholders
 
-## 🚀 **Próximas Mejoras**
+### **Business Intelligence**
+- Dashboard ejecutivo con KPIs principales
+- Exportación de datos para análisis externos
+- Filtrado avanzado para segmentación de datos
+- Análisis predictivo mediante regresión lineal
 
-- **Autenticación JWT** - Sistema de usuarios
-- **Real-time** - WebSockets para actualizaciones
-- **Machine Learning** - Predicciones avanzadas
-- **PostgreSQL** - Base de datos robusta
-- **Redis** - Cache y sesiones
-- **Kubernetes** - Orquestación avanzada
+### **Reporting y Exportación**
+- Generación automática de reportes en CSV y Excel
+- Filtrado personalizado de datos antes de exportar
+- Múltiples formatos de salida para diferentes necesidades
+- Documentación automática de APIs para integración
+
+## 🔧 **Arquitectura y Decisiones Técnicas**
+
+### **Backend**
+- **FastAPI**: Framework elegido por su alto rendimiento y documentación automática
+- **SQLite**: Base de datos ligera ideal para prototipos y proyectos medianos
+- **Pandas**: Librería estándar para manipulación y análisis de datos en Python
+- **REST API**: Arquitectura RESTful para facilitar la integración con otros sistemas
+
+### **Frontend**
+- **Vanilla JavaScript**: Sin dependencias de frameworks pesados, código ligero y rápido
+- **Chart.js**: Librería de visualización probada y confiable
+- **Responsive Design**: Mobile-first para accesibilidad en todos los dispositivos
+
+### **DevOps**
+- **Docker**: Containerización para despliegue consistente en cualquier entorno
+- **CI/CD**: Automatización de tests y despliegue mediante GitHub Actions
+- **Testing**: Suite de tests unitarios para garantizar calidad del código
+
+## 🚀 **Roadmap Futuro**
+
+El proyecto está en constante evolución. Próximas mejoras planificadas incluyen:
+
+- Implementación de autenticación y autorización mediante JWT
+- Integración de WebSockets para actualizaciones en tiempo real
+- Algoritmos de Machine Learning para predicciones más avanzadas
+- Migración a PostgreSQL para escalabilidad mejorada
+- Implementación de cache con Redis para optimización de rendimiento
+- Orquestación avanzada con Kubernetes para entornos de producción
 
 ## 📄 **Licencia**
 
